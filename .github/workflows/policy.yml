@@ -1,0 +1,58 @@
+name: policy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # The release policy-bot-deployer runs. Validation uses it so CI accepts
+  # exactly the syntax the server accepts. Change the version and the checksum
+  # together, and in step with policy-bot-deployer's Dockerfile.
+  POLICY_BOT_VERSION: 1.42.1
+  POLICY_BOT_SHA256: 4647b752bb98d6d5dd72b9a95de9dc3b94d410d813c5df82776df19365c194a7
+  # The `test` subcommand is not in a release yet, so tests use a build of this
+  # upstream develop commit. Once a release includes `test`, run it from the
+  # release binary above and remove this.
+  POLICY_BOT_TEST_COMMIT: 7e5f5f8ae4429899dfe25825d844b8ba06c9dbc4
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install policy-bot release
+        run: |
+          archive="policy-bot-${POLICY_BOT_VERSION}.tgz"
+          curl -fsSL -o "$archive" \
+            "https://github.com/palantir/policy-bot/releases/download/v${POLICY_BOT_VERSION}/${archive}"
+          echo "${POLICY_BOT_SHA256}  ${archive}" | sha256sum --check
+          tar -xzf "$archive"
+          echo "$PWD/policy-bot-${POLICY_BOT_VERSION}/bin/linux-amd64" >> "$GITHUB_PATH"
+
+      - name: Validate
+        run: policy-bot validate -p policy.yml
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27"
+          cache: false
+
+      - name: Build policy-bot at the pinned commit
+        run: go install "github.com/palantir/policy-bot@${POLICY_BOT_TEST_COMMIT}"
+
+      - name: Test
+        run: policy-bot test -p policy.yml -f policy-tests/policy.yml
