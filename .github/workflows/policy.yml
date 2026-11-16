@@ -21,7 +21,8 @@ env:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    # Downloads and runs one binary; needs no Docker.
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -40,7 +41,8 @@ jobs:
         run: policy-bot validate -p policy.yml
 
   test:
-    runs-on: ubuntu-latest
+    # Builds and runs one binary; needs no Docker.
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
