@@ -1,0 +1,20 @@
+# Shared policy-bot policy for Compound Foundation repositories.
+#
+# policy-bot is configured with force_shared_policy, so this file applies to
+# every repository where the policy-bot GitHub App is installed, and a
+# .policy.yml in an individual repository is ignored. Changes take effect when
+# they merge to main; policy-bot needs no redeploy.
+#
+# This is a starting policy for the sandbox repository. Rules for production
+# repositories are designed separately.
+
+policy:
+  approval:
+    - an organization member has approved
+
+approval_rules:
+  - name: an organization member has approved
+    description: One approval from a Compound-Foundation member other than the author.
+    requires:
+      count: 1
+      organizations: ["Compound-Foundation"]

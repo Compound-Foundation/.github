@@ -1,0 +1,41 @@
+# Scenarios for `policy-bot test`. Each describes an open pull request and the
+# result policy.yml must produce for it.
+scenarios:
+  - name: no reviews leaves the policy pending
+    author: alice
+    org_memberships:
+      alice: ["Compound-Foundation"]
+    expected: pending
+
+  - name: the author cannot approve their own pull request
+    author: alice
+    org_memberships:
+      alice: ["Compound-Foundation"]
+    reviews:
+      - { author: alice, state: approved }
+    expected: pending
+
+  - name: an approval from another organization member satisfies the policy
+    author: alice
+    org_memberships:
+      alice: ["Compound-Foundation"]
+      bob: ["Compound-Foundation"]
+    reviews:
+      - { author: bob, state: approved }
+    expected: approved
+
+  - name: an approval from outside the organization does not count
+    author: alice
+    org_memberships:
+      alice: ["Compound-Foundation"]
+    reviews:
+      - { author: mallory, state: approved }
+    expected: pending
+
+  - name: a comment review does not count as approval
+    author: alice
+    org_memberships:
+      bob: ["Compound-Foundation"]
+    reviews:
+      - { author: bob, state: commented }
+    expected: pending
