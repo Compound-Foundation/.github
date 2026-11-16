@@ -21,8 +21,7 @@ env:
 
 jobs:
   validate:
-    # Downloads and runs one binary; needs no Docker.
-    runs-on: ubuntu-slim
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -41,9 +40,8 @@ jobs:
         run: policy-bot validate -p policy.yml
 
   test:
-    # Not ubuntu-slim: compiling policy-bot takes about 2.5 minutes on slim's
-    # single CPU. Move to ubuntu-slim once this job downloads a release binary
-    # instead of building one. 4 vCPU because the compile parallelizes.
+    # 4 vCPU because this job compiles policy-bot. Use 2 vCPU once it
+    # downloads a release binary instead.
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
