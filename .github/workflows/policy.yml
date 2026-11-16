@@ -41,8 +41,10 @@ jobs:
         run: policy-bot validate -p policy.yml
 
   test:
-    # Builds and runs one binary; needs no Docker.
-    runs-on: ubuntu-slim
+    # Not ubuntu-slim: compiling policy-bot takes about 2.5 minutes on slim's
+    # single CPU, against about 40 seconds here. Move to ubuntu-slim once this
+    # job downloads a release binary instead of building one.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
